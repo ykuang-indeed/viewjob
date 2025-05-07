@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting...</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f2f5;
+            color: #333;
+        }
+        .container {
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .loader {
+            border: 4px solid #f3f3f3; /* Light grey */
+            border-top: 4px solid #3498db; /* Blue */
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    <script>
+        function getQueryParam(param) {
+            // Function to get URL query parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get(param);
+        }
+
+        function isMobileDevice() {
+            // Function to detect if it's a mobile device
+            // This checks for common mobile keywords in navigator.userAgent
+            // It's a common method but not entirely foolproof.
+            return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        }
+
+        function redirectUser() {
+            // Main redirection logic function
+            const jkValue = getQueryParam('jk');
+
+            if (!jkValue) {
+                // If 'jk' parameter is missing, redirect to indeed.com
+                console.log('JK parameter missing, redirecting to indeed.com');
+                document.getElementById('message').textContent = 'The "jk" parameter is missing in the URL. Redirecting to Indeed.com...';
+                document.querySelector('.loader').style.display = 'none'; // Hide loader if desired before redirect
+                window.location.replace('https://www.indeed.com');
+                return;
+            }
+
+            // Desktop URL template
+            const desktopUrlTemplate = `https://www.indeed.com/viewjob?from=appsharedroid&jk=${jkValue}`;
+            
+            // Mobile OneLink URL template
+            // Note: The jk parameter within targetUrl also needs to be replaced
+            const encodedTargetUrl = encodeURIComponent(`https://www.indeed.com/m/viewjob?jk=${jkValue}&from=myjobs_shared_job_url&utm_source=myjobs_shared_job_url&utm_medium=native_myjobs&utm_campaign=%23A1%3Amyjobs_shared_job_url_tst1`);
+            const mobileUrlTemplate = `https://indeed.onelink.me/oo1Z?af_xp=custom&pid=native_myjobs&c=myjobs_shared_job_url&af_adset=%23A1%3Amyjobs_shared_job_url_tst1&targetUrl=${encodedTargetUrl}`;
+
+            if (isMobileDevice()) {
+                // If it's a mobile device, redirect to OneLink URL
+                console.log('Mobile device detected, redirecting to:', mobileUrlTemplate);
+                window.location.replace(mobileUrlTemplate);
+            } else {
+                // If it's a desktop device, redirect to Indeed desktop URL
+                console.log('Desktop device detected, redirecting to:', desktopUrlTemplate);
+                window.location.replace(desktopUrlTemplate);
+            }
+        }
+
+        // Execute redirection logic when the page is loaded
+        window.onload = redirectUser;
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="loader"></div>
+        <p id="message">Redirecting based on your device type, please wait...</p>
+        <p>If you are not redirected automatically, please check your internet connection or browser settings.</p>
+    </div>
+</body>
+</html>
